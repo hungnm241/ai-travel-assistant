@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CommonJwtModule } from './common/modules/jwt.module';
 import { PrismaService } from './prisma/prisma.service';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { RateLimitGuard } from './common/guards/rate-limit.guard';
 
 @Module({
     imports: [
@@ -27,6 +28,10 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
         {
             provide: APP_GUARD,
             useClass: JwtAuthGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: RateLimitGuard,
         },
     ]
 })

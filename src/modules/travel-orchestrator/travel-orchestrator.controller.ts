@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { TravelOrchestratorService } from './travel-orchestrator.service';
 import { ContinueConversationDto } from './dto/continue-conversation.dto';
+import { RateLimit } from 'src/common/decorators/rate-limit.decorator';
 
 @Controller('travel')
 export class TravelOrchestratorController {
@@ -9,6 +10,7 @@ export class TravelOrchestratorController {
   ) {}
 
   @Post('conversation')
+  @RateLimit({ windowMs: 60_000, limit: 10, perRoute: true, keyStrategy: 'userOrIp' })
   async continueConversation(
     @Req() req: any,
     @Body() body: ContinueConversationDto,

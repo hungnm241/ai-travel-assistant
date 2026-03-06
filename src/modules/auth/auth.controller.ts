@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Public } from '../../common/decorators/public.decorator';
+import { RateLimit } from 'src/common/decorators/rate-limit.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -15,6 +16,7 @@ export class AuthController {
     }
 
     @Public()
+    @RateLimit({ windowMs: 60_000, limit: 5, perRoute: true, keyStrategy: 'userOrIp' })
     @Post('login')
     async login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto);

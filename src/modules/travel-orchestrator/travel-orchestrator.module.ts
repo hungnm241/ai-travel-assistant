@@ -13,7 +13,11 @@ import { AiProviderService } from './ai/ai-provider.service';
     }),
   ],
   controllers: [TravelOrchestratorController],
-  providers: [TravelOrchestratorService, PrismaService, AiProviderService],
+  providers: [
+    TravelOrchestratorService,
+    PrismaService,
+    AiProviderService,
+  ],
   exports: [TravelOrchestratorService],
 })
 export class TravelOrchestratorModule {}
