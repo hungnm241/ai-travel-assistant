@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum UserGender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model User {
+  id           BigInt    @id @default(autoincrement()) @db.BigInt
+  email        String    @unique @db.VarChar
+  fullName     String?   @map("full_name") @db.VarChar(255)
+  password     String    @db.Text
+  role         Role      @default(USER)
+  status       Int       @default(1) @db.SmallInt
+  gender       UserGender?
+  phoneNumber  String?   @map("phone_number") @db.VarChar(20)
+  city         String?   @db.VarChar(50)
+  department   String?   @db.VarChar(50)
+  address      String?   @db.VarChar(255)
+  birthDate    DateTime? @db.Date
+  refreshToken String?   @map("refresh_token") @db.Text
+  deviceId     String?   @map("device_id") @db.Text
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdBy    BigInt?   @map("created_by") @db.BigInt
+  updatedBy    BigInt?   @map("updated_by") @db.BigInt
+  deletedBy    BigInt?   @map("deleted_by") @db.BigInt
+
+  conversations Conversation[]
+
+  @@map("users")
+}
+
+model Conversation {
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    BigInt   @db.BigInt
+  status    String   @db.VarChar(50) // COLLECTING_INFO | PLANNING | COMPLETED
+  summary   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  messages Message[]
+  plans    Plan[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             BigInt       @id @default(autoincrement()) @db.BigInt
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversationId BigInt       @db.BigInt
+  role           String       @db.VarChar(20) // USER | ASSISTANT | SYSTEM
+  type           String       @db.VarChar(50) // NORMAL | FOLLOWUP_QUESTION | ANSWER | PLAN_SUMMARY
+  content        String       @db.Text
+  metadata       Json?
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("messages")
+}
+
+model Plan {
+  id             BigInt       @id @default(autoincrement()) @db.BigInt
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversationId BigInt       @db.BigInt
+  planJson       Json
+  isFinal        Boolean      @default(false)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("plans")
+}
